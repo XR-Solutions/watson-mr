@@ -10,6 +10,7 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 /[Mm]ods/
+/[Dd]ist/
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
@@ -80,3 +81,18 @@ crashlytics-build.properties
 # MacOS
 .DS_Store
 **/.DS_Store
+
+# MRTK for branch switching ease #
+[Aa]pp*/
+Assets/MixedRealityToolkit.Generated*
+Assets/StreamingAssets/GltfModels/
+Assets/StreamingAssets/GltfModels.meta
+Assets/StreamingAssets.meta
+Assets/TextMesh Pro*
+Assets/ThirdParty*
+[Bb]uilds/
+[Ll]ibrary/
+MSBuild/
+scripts/test/out/
+[Uu]serSettings/
+UWP/
