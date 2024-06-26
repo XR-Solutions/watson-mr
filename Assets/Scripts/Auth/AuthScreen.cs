@@ -39,7 +39,7 @@ public class AuthScreen : MonoBehaviour
         while (!_hasSubmittedCode)
         {
             var deviceCode = await RetrieveDeviceCode();
-            LongPollDeviceActivation(deviceCode);
+            _ = LongPollDeviceActivation(deviceCode);
             await Task.Delay(_expiresInSeconds * 1000);
         }
     }
