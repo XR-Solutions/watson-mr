@@ -8,6 +8,8 @@ using UnityEngine.Windows.Speech;
 public class CopilotScript : MonoBehaviour
 {
     public GameObject RecordingIndicator;
+    public AudioClip PromptStartAudio;
+    public AudioClip PromptEndAudio;
 
     private KeywordRecognizer _keywordRecognizer;
     private Dictionary<string, System.Action> _keywords = new();
@@ -25,6 +27,8 @@ public class CopilotScript : MonoBehaviour
     public async void StartListening()
     {
         RecordingIndicator.SetActive(true);
+        PlayChime(PromptStartAudio);
+
         await Task.Delay(5000);
         StopListening();
     }
@@ -32,6 +36,14 @@ public class CopilotScript : MonoBehaviour
     public void StopListening()
     {
         RecordingIndicator.SetActive(false);
+        PlayChime(PromptEndAudio);
+    }
+
+    private void PlayChime(AudioClip audioClip)
+    {
+        var audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.clip = audioClip;
+        audioSource.Play();
     }
 
     private void KeywordRecognizer_OnPhraseRecognized(PhraseRecognizedEventArgs args)
@@ -40,6 +52,7 @@ public class CopilotScript : MonoBehaviour
         if (_keywords.TryGetValue(args.text, out keywordAction))
             keywordAction.Invoke();
     }
+
     public void OnApplicationQuit()
     {
         if (_keywordRecognizer != null && _keywordRecognizer.IsRunning)
