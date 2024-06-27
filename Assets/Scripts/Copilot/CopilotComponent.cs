@@ -14,6 +14,8 @@ public class CopilotScript : MonoBehaviour
     private KeywordRecognizer _keywordRecognizer;
     private Dictionary<string, System.Action> _keywords = new();
 
+    private List<float> tempRecording = new();
+
     public void Start()
     {
         _keywords.Add("Watson", () => StartListening());
@@ -26,15 +28,27 @@ public class CopilotScript : MonoBehaviour
 
     public async void StartListening()
     {
+        if (RecordingIndicator.activeSelf) return;
         RecordingIndicator.SetActive(true);
         PlayChime(PromptStartAudio);
+        DoShit();
+    }
 
-        await Task.Delay(5000);
-        StopListening();
+    private async void DoShit()
+    {
+        int minFreq, maxFreq;
+        Microphone.GetDeviceCaps(null, out minFreq, out maxFreq);
+        var recordFrequency = minFreq == 0 && maxFreq == 0 ? 44100 : maxFreq;
+
+        var audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.clip = Microphone.Start(null, true, 50, recordFrequency);
+        audioSource.Play();
+        //StopListening();
     }
 
     public void StopListening()
     {
+        if (!RecordingIndicator.activeSelf) return;
         RecordingIndicator.SetActive(false);
         PlayChime(PromptEndAudio);
     }
@@ -48,6 +62,7 @@ public class CopilotScript : MonoBehaviour
 
     private void KeywordRecognizer_OnPhraseRecognized(PhraseRecognizedEventArgs args)
     {
+        StopListening();
         System.Action keywordAction;
         if (_keywords.TryGetValue(args.text, out keywordAction))
             keywordAction.Invoke();
