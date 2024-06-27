@@ -16,40 +16,39 @@ public class CopilotScript : MonoBehaviour
     private KeywordRecognizer _keywordRecognizer;
     private Dictionary<string, System.Action> _keywords = new();
 
+    private AudioSource _watsonSource;
+
     private int _recordFrequency = 44100;
 
     public void Start()
     {
+        _watsonSource = gameObject.AddComponent<AudioSource>();
         int minFreq, maxFreq;
         Microphone.GetDeviceCaps(null, out minFreq, out maxFreq);
         _recordFrequency = minFreq == 0 && maxFreq == 0 ? 44100 : maxFreq;
 
         _keywords.Add("Watson", () => StartListening());
         _keywords.Add("Hey", () => StartListening());
+        _keywords.Add("Stop", () => _watsonSource.Stop());
 
         _keywordRecognizer = new KeywordRecognizer(_keywords.Keys.ToArray());
         _keywordRecognizer.OnPhraseRecognized += KeywordRecognizer_OnPhraseRecognized;
         _keywordRecognizer.Start();
     }
 
-    public void Update()
-    {
-        
-    }
-
     public async void StartListening()
     {
+        _watsonSource.Stop();
         if (RecordingIndicator.activeSelf) return;
         RecordingIndicator.SetActive(true);
         PlayChime(PromptStartAudio);
-        DoShit();
+        InvokeResponse();
     }
 
-    private async void DoShit()
+    private async void InvokeResponse()
     {
         PhraseRecognitionSystem.Shutdown();
         AudioClip clip = Microphone.Start(null, true, 50, _recordFrequency);
-
 
         await Task.Delay(5000);
         StopListening();
@@ -88,9 +87,8 @@ public class CopilotScript : MonoBehaviour
         
         if (clip != null)
         {
-            var audio = gameObject.AddComponent<AudioSource>();
-            audio.clip = clip;
-            audio.Play();
+            _watsonSource.clip = clip;
+            _watsonSource.Play();
         }
     }
 
